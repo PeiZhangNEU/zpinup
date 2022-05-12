@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # env = env.unwrapped                   # 对于不会返回done的程序，不要使用unwrapped！
     # cuda = torch.cuda.is_available()
     cuda = False
-    os.makedirs('./model', exist_ok=True)
+    os.makedirs('alogos/HRL/option_critic/option_critic_continues/model', exist_ok=True)
     test = option_critic(
         env=env,
         episode=1000,
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         conv=False,
         cuda=cuda,
         render=False,
-        save_path='./model/pendulum.pkl'
+        save_path='alogos/HRL/option_critic/option_critic_continues/model/pendulum.pkl'
     )
     test.net = torch.load(test.save_path, map_location='cpu')
     print(test.net)

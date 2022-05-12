@@ -2,6 +2,74 @@
 使用pytorch在spinningup基础上改写的RL库
 不需要安装spinup，不需要复杂的logx等插件支持，安装即可用
 集成了多种RL算法，后续还将继续更新！
+实现的具体算法清单如下:
+
+├── cartpole_qlearning
+│   ├── discerete_obs_q_test.py
+│   ├── discerete_obs_q_train.py
+│   └── q_table.npy
+├── ddpg
+│   ├── [core.py](http://core.py/)
+│   ├── [ddpg.py](http://ddpg.py/)
+│   ├── ddpg_test.py
+│   ├── ddpg_train.py
+│   └── **pycache**
+├── dqn
+├── gail
+├── her_ddpg
+│   ├── [arguments.py](http://arguments.py/)
+│   ├── ddpg_agent.py
+│   ├── [her.py](http://her.py/)
+│   ├── [models.py](http://models.py/)
+│   ├── [normalizer.py](http://normalizer.py/)
+│   ├── **pycache**
+│   ├── replay_buffer.py
+│   ├── test_model.py
+│   ├── [train.py](http://train.py/)
+│   └── [utils.py](http://utils.py/)
+├── HRL
+│   ├── H_DQN
+│   └── option_critic
+├── **init**.py
+├── ppo
+│   ├── [core.py](http://core.py/)
+│   ├── [ppo.py](http://ppo.py/)
+│   ├── ppo_test.py
+│   ├── ppo_train.py
+│   └── **pycache**
+├── **pycache**
+│   └── **init**.cpython-37.pyc
+├── sac
+│   ├── [core.py](http://core.py/)
+│   ├── **pycache**
+│   ├── [sac.py](http://sac.py/)
+│   ├── sac_test.py
+│   └── sac_train.py
+├── sac_discrete
+│   ├── [core.py](http://core.py/)
+│   ├── **pycache**
+│   ├── sac_discrete.py
+│   ├── sac_discrete_test.py
+│   └── sac_discrete_train.py
+├── td3
+│   ├── [core.py](http://core.py/)
+│   ├── **pycache**
+│   ├── [td3.py](http://td3.py/)
+│   ├── td3_test.py
+│   └── td3_train.py
+├── trpo
+│   ├── [core.py](http://core.py/)
+│   ├── **pycache**
+│   ├── [trpo.py](http://trpo.py/)
+│   ├── trpo_test.py
+│   └── trpo_train.py
+└── vpg
+├── [core.py](http://core.py/)
+├── **pycache**
+├── [vpg.py](http://vpg.py/)
+├── vpg_test.py
+└── vpg_train.py
+
 具体介绍请看 notion
 https://www.notion.so/zpinup-intoduction-46812cff293b4fdb93b98297aa8aaa33
 # Spinup_Complete

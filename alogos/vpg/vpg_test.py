@@ -44,5 +44,5 @@ def test(path, env_name, render=True, num_episodes=2000, max_ep_len=1000):
 
 
 if __name__ == '__main__':
-    test('data/vpg_hopper/vpg_hopper_s0/pyt_save/model.pt','Hopper-v2')
+    test('data/vpg_hopper/vpg_50_ac.pt','Hopper-v2')
     # test('data/vpg_cartpole/vpg_cartpole_s0/pyt_save/model.pt','CartPole-v0')

@@ -3,7 +3,7 @@
 不需要安装spinup，不需要复杂的logx等插件支持，安装即可用
 集成了多种RL算法，后续还将继续更新！
 实现的具体算法清单如下:
-
+```
 ├── cartpole_qlearning
 │   ├── discerete_obs_q_test.py
 │   ├── discerete_obs_q_train.py
@@ -69,6 +69,8 @@
 ├── [vpg.py](http://vpg.py/)
 ├── vpg_test.py
 └── vpg_train.py
+```
+
 
 具体介绍请看 notion
 https://www.notion.so/zpinup-intoduction-46812cff293b4fdb93b98297aa8aaa33

@@ -74,7 +74,6 @@
 
 具体介绍请看 notion
 https://www.notion.so/zpinup-intoduction-46812cff293b4fdb93b98297aa8aaa33
-# Spinup_Complete
 更新！
 
 参考DRLib作者的HER算法，按照spinup的代码结构写了DDPGHER算法，位于`spiup/goal_env_alogos/DDPG_HER`中

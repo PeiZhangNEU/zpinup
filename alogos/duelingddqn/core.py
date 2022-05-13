@@ -34,6 +34,35 @@ def mlp(sizes, activation, output_activation=nn.Identity):
         layers += [nn.Linear(sizes[j], sizes[j+1]), act()]
     return nn.Sequential(*layers)
 
+def conv_mlp(obs_dim, act_dim):
+    '''
+    对于atari环境，输入是图片的情况来说，需要用到卷积处理图片，方便起见，我这里的网络结构直接制定了
+    obs_dim = [1, 84, 84]
+    '''
+    # 先建立一个卷及模型
+    conv_model = nn.Sequential(
+                nn.Conv2d(obs_dim[0], 32, 8, 4),
+                nn.ReLU(),
+                nn.Conv2d(32, 64, 4, 2),
+                nn.ReLU(),
+                nn.Conv2d(64, 64, 3, 1),
+                nn.ReLU()
+            )
+    # 再进行全连接, 全连接之前必须知道卷积的输出拉直之后是什么形状
+    tmp = torch.zeros(1, * obs_dim)
+    feature_size = conv_model(tmp).view(1, -1).size(1)
+
+    # 再建立一个线性模型
+    linear_model = nn.Sequential(
+                nn.Linear(feature_size, 128),
+                nn.ReLU(),
+                nn.Linear(128, 64),
+                nn.ReLU(),
+                nn.Linear(64, act_dim)
+            )
+
+    return conv_model, linear_model
+
 def count_vars(module):
     '''
     返回一个模型所有的参数数量
@@ -47,13 +76,18 @@ class Q_net(nn.Module):
     类里面的方法出现前置下划线是，代表这个函数是该类私有的，只能在内部调用
     这个类没有 __init__(self, inputs) 所以是不可实例化的类，只是一个用来继承的模板
     '''
-    def __init__(self, obs_dim, act_dim, hidden_sizes, activation):
+    def __init__(self, obs_dim, act_dim, hidden_sizes, activation, useconve=False):
         '''初始一个logits网络，可以直接输出各个动作对应的概率'''
         super().__init__()
 
         #  输出变成 Advantage  和  Value， Advantage的维度是act_dim, V(s) 是1
         #  A(s,a)类似 Q(s,a) 在离散动作空间中， 这种动作价值直接输出 a 维度。
-        self.logits_net = mlp([obs_dim] + list(hidden_sizes) + [act_dim + 1], activation)
+        self.useconve = useconve
+        if self.useconve:
+            # 如果使用卷及网络，那就用conv层
+            self.conv_net, self.logits_net = conv_mlp(obs_dim, act_dim + 1)
+        else:
+            self.logits_net = mlp([obs_dim[0]] + list(hidden_sizes) + [act_dim + 1], activation)   # 把obs_dim[0] 防在这里是最合适的
     
     def forward(self, obs):
         '''
@@ -64,7 +98,11 @@ class Q_net(nn.Module):
         计算分布下，给定动作对应的log p(a)
         actor里面forward一般是只接收批量的数据，每一步的计算用上面的函数
         '''
-        logits = self.logits_net(obs)
+        if self.useconve:
+            conv_feature = self.conv_net(obs).view(obs.size(0), -1)   # [N, conv_features num]
+            logits = self.logits_net(conv_feature)
+        else:
+            logits = self.logits_net(obs)
         return logits
 
 
@@ -76,13 +114,13 @@ class MLPpolicy(nn.Module):
     DQN 只能处理离散动作，所以act_dim 直接取n
     '''
     def __init__(self, observation_space, action_space, epsilon=0.5,
-                 hidden_sizes=(64,64), activation=nn.Tanh):
+                 hidden_sizes=(64,64), activation=nn.Tanh, useconve=False):
         super().__init__()
         
-        self.obs_dim = observation_space.shape[0]
+        self.obs_dim = observation_space.shape
         self.act_dim = action_space.n
         self.epsilon = epsilon
-        self.pi = Q_net(self.obs_dim, self.act_dim, hidden_sizes, activation)
+        self.pi = Q_net(self.obs_dim, self.act_dim, hidden_sizes, activation, useconve=useconve)
         
     def step(self, obs):
         '''
@@ -93,6 +131,7 @@ class MLPpolicy(nn.Module):
         if np.random.uniform() >= self.epsilon:
             with torch.no_grad():
                 logits = self.pi(obs).cpu().numpy()
+                logits = logits.squeeze()             # 为什么要squeeze 因为 atari的时候 logtis形状是 [1, act_dim+1] 前面多了个1
                 # logits 输出的维度本来是 act_dim + 1 选择动作的时候根据前act_dim的 A(s)[a]选
                 logits_action = logits[:-1]
                 a = np.argmax(logits_action)
@@ -105,6 +144,7 @@ class MLPpolicy(nn.Module):
         '''用于载入模型之后测试'''
         with torch.no_grad():
             logits = self.pi(obs).cpu().numpy()
+            logits = logits.squeeze()
             # logits 输出的维度本来是 act_dim + 1 选择动作的时候根据前act_dim的 A(s)[a]选
             logits_action = logits[:-1]
             a = np.argmax(logits_action)

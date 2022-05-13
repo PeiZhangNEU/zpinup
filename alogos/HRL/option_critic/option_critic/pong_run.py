@@ -13,7 +13,7 @@ if __name__ == '__main__':
     env = wrap_deepmind(env)
     env = wrap_pytorch(env)
     cuda = torch.cuda.is_available()
-    os.makedirs('./model', exist_ok=True)
+    os.makedirs('alogos/HRL/option_critic/option_critic/model', exist_ok=True)
     test = option_critic(
         env=env,
         episode=3000,
@@ -33,6 +33,6 @@ if __name__ == '__main__':
         conv=True,
         cuda=cuda,
         render=False,
-        save_path='./model/pong.pkl'
+        save_path='alogos/HRL/option_critic/option_critic/model/pong.pkl'
     )
     test.run()

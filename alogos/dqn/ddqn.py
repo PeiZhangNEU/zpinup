@@ -58,7 +58,7 @@ class dqn:
     '''
     def __init__(self, env_fn, policy=core.MLPpolicy, ac_kwargs=dict(), 
                  replay_size=int(1e6), gamma=0.99, epsilon=0.5,
-                 pi_lr=1e-3, delay_up=0.995,
+                 pi_lr=1e-3, delay_up=0.995, useconve=False,
                  num_test_episodes=10, max_ep_len=1000, device=None
         ):
 
@@ -74,7 +74,7 @@ class dqn:
 
 
         # 建立Q_net
-        self.policy = policy(self.env.observation_space, self.env.action_space, epsilon=epsilon, **ac_kwargs).to(self.device)
+        self.policy = policy(self.env.observation_space, self.env.action_space, epsilon=epsilon,useconve=useconve, **ac_kwargs).to(self.device)
         self.pi_optimizer = Adam(self.policy.pi.parameters(), lr=pi_lr)
 
         # 建立Q_target: 直接复制policy

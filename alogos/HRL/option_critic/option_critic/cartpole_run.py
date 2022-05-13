@@ -11,7 +11,7 @@ if __name__ == '__main__':
     env = env.unwrapped
     # cuda = torch.cuda.is_available()
     cuda = False                               # 小型网络用cpu更快！
-    os.makedirs('./model', exist_ok=True)
+    os.makedirs('alogos/HRL/option_critic/option_critic/model', exist_ok=True)
     test = option_critic(
         env=env,
         episode=1000,
@@ -31,6 +31,6 @@ if __name__ == '__main__':
         conv=False,
         cuda=cuda,
         render=True,
-        save_path='./model/cartpole.pkl'
+        save_path='alogos/HRL/option_critic/option_critic/model/cartpole.pkl'
     )
     test.run()

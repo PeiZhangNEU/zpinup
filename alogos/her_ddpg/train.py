@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 import gym
 import os, sys
-sys.path.append('/home/zp/ompx_project/open_manipulator_gym')
 import numpy as np
 import os
 from arguments import Args

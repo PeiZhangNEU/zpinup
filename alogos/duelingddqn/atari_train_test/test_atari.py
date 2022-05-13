@@ -51,4 +51,4 @@ def test(path, env_name, render=True, num_episodes=2000, max_ep_len=1000):
 
 
 if __name__ == '__main__':
-    test('data/duelingdqn_breakout/dqn_9_policy.pt','Breakout-v0')
+    test('data/duelingdqn_breakout/dqn_60_policy.pt','Breakout-v0')

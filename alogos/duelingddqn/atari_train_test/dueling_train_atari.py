@@ -92,7 +92,8 @@ def train(env_fn, policy=core.MLPpolicy, ac_kwargs=dict(), seed=0,
             # 打印以及存储模型，以及测试模型
             if (t+1) % steps_per_epoch == 0:
                 epoch = (t+1) // steps_per_epoch   # 除完向下取整
-                agent.policy.epsilon = epsilon * (1 / (epoch + 1))   # 每一个epoch， 减小一下epsilon
+                if epoch >= 30:  # 前30个回合自由探索一点？再进行下降？
+                    agent.policy.epsilon = epsilon * (1 / (epoch-30 + 1))   # 每一个epoch， 减小一下epsilon， 这样Epsilon会不会减小的太快了？
                 agent.information['Epsilon'] = agent.policy.epsilon
 
                 # 存储模型

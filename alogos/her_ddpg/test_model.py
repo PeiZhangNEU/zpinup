@@ -9,7 +9,7 @@ import gym
 import time
 # from bmirobot_env.bmirobot_push_F import bmirobotGympushEnv as bmenv
 #加载训练好的模型 数据
-model_path = "data/her_ddpg/FetchPush-v1/123_False1_model.pt"
+model_path = "data/her_ddpg/FetchPush-v1/123_False106_model.pt"
 actions = []
 observations = []
 a_goals, d_goals = [], []

@@ -123,7 +123,7 @@ class dqn:
         # 记录
         self.information['LossPi'] = loss_pi.item()
 
-        # 最后， 更新target的两个网络参数，软更新 用了自乘操作，节省内存
+        # 比DQN多了目标网络软更新！
         with torch.no_grad():
             for p, p_targ in zip(self.policy.parameters(), self.tar_policy.parameters()):
                 p_targ.data.mul_(self.delay_up)

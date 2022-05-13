@@ -1,4 +1,6 @@
 基于spinningup的结构，但是不需要spinup的logx了
+将下面路径改为你自己的路径
+sys.path.append('/home/xx/zpinup/')
 
 # 环境要求
 

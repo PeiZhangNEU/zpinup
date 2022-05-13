@@ -1,163 +1,31 @@
-# zpinup
-使用pytorch在spinningup基础上改写的RL库
-不需要安装spinup，不需要复杂的logx等插件支持，安装即可用
-集成了多种RL算法，后续还将继续更新！
-实现的具体算法清单如下:
-```
-├── cartpole_qlearning
-│   ├── discerete_obs_q_test.py
-│   ├── discerete_obs_q_train.py
-│   └── q_table.npy
-├── ddpg
-│   ├── [core.py](http://core.py/)
-│   ├── [ddpg.py](http://ddpg.py/)
-│   ├── ddpg_test.py
-│   ├── ddpg_train.py
-│   └── **pycache**
-├── dqn
-├── gail
-├── her_ddpg
-│   ├── [arguments.py](http://arguments.py/)
-│   ├── ddpg_agent.py
-│   ├── [her.py](http://her.py/)
-│   ├── [models.py](http://models.py/)
-│   ├── [normalizer.py](http://normalizer.py/)
-│   ├── **pycache**
-│   ├── replay_buffer.py
-│   ├── test_model.py
-│   ├── [train.py](http://train.py/)
-│   └── [utils.py](http://utils.py/)
-├── HRL
-│   ├── H_DQN
-│   └── option_critic
-├── **init**.py
-├── ppo
-│   ├── [core.py](http://core.py/)
-│   ├── [ppo.py](http://ppo.py/)
-│   ├── ppo_test.py
-│   ├── ppo_train.py
-│   └── **pycache**
-├── **pycache**
-│   └── **init**.cpython-37.pyc
-├── sac
-│   ├── [core.py](http://core.py/)
-│   ├── **pycache**
-│   ├── [sac.py](http://sac.py/)
-│   ├── sac_test.py
-│   └── sac_train.py
-├── sac_discrete
-│   ├── [core.py](http://core.py/)
-│   ├── **pycache**
-│   ├── sac_discrete.py
-│   ├── sac_discrete_test.py
-│   └── sac_discrete_train.py
-├── td3
-│   ├── [core.py](http://core.py/)
-│   ├── **pycache**
-│   ├── [td3.py](http://td3.py/)
-│   ├── td3_test.py
-│   └── td3_train.py
-├── trpo
-│   ├── [core.py](http://core.py/)
-│   ├── **pycache**
-│   ├── [trpo.py](http://trpo.py/)
-│   ├── trpo_test.py
-│   └── trpo_train.py
-└── vpg
-├── [core.py](http://core.py/)
-├── **pycache**
-├── [vpg.py](http://vpg.py/)
-├── vpg_test.py
-└── vpg_train.py
-```
+基于spinningup的结构，但是不需要spinup的logx了
 
+# 环境要求
 
-具体介绍请看 notion
-https://www.notion.so/zpinup-intoduction-46812cff293b4fdb93b98297aa8aaa33
-更新！
+需要安装mujoco210，自行研究
 
-参考DRLib作者的HER算法，按照spinup的代码结构写了DDPGHER算法，位于`spiup/goal_env_alogos/DDPG_HER`中
+Package                         Version
 
-其中Offpolicy是离线RL的通用代码`baseoffpolicy`,`memory`,`normalizer`。
-
-其中`baseoffpolicy`中主要包含了RL算法的超参数，以及HERsample的方法，以及获取动作的函数
-
-对spinup代码的完善和整理，加入了pytorch版本的trpo以及离散版本的SAC
-
-项目参考Openai Spinup 项目的格式，每个RL算法均是一个单独的文件
-alg
-
--core.py
-
--alg.py
-
--alg_train.py
-
--alg_test.py
-
-便于学习和开发。
-
-另外，本项目使用了spinup的log工具，需要安装mpi插件
-
-pytorch版本 1.6
-
-
-
-使用的时候，进入`spinup/alogs/alg/` 运行 `alg_train.py`， 测试的时候运行 `alg_test.py` 即可
-
-
-
-项目把 `actor` 和 `critic `的模型pt文件保存到了 `model view `文件夹里。
-
-可以使用在线模型可视化程序 Netron :https://github.com/lutzroeder/netron 来对model_view保存好的模型进行可视化！
-
-
-
-`pre_train_data`是训练好的模型和训练过程。
-
-
-
-![image-20220318100434094](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220318100434094.png)
-
-
-
-[核心算法及其实现 — Spinning Up 文档](https://spinningup.readthedocs.io/zh_CN/latest/user/algorithms.html)
-
-
+attrs                           21.4.0
+Box2D                           2.3.10
+box2d-py                        2.3.8
+glfw                            2.5.1
+gym                             0.22.0
+gym-notices                     0.0.6
+gym-robotics                    0.1.0
+mpi4py                          3.0.3
+scipy                           1.7.3
+seaborn                         0.11.2
+tensorboard                     2.8.0
+torch                           1.11.0
+torchaudio                      0.11.0
+torchvision                     0.12.0
+tornado                         6.1
+tqdm                            4.55.0
 
 # 一、项目有哪些代码
 
-这些代码都属于Actor-Critic， 而Actor-Critic属于策略梯度算法这个大类。
-
-Actor-Critic的显著特点
-
-1. 估计回报 $U_t$
-
-2. 策略改进，增大 $\psi_t log(\pi(a|s))$ 或者是别的形式，但是终究是以梯度形式增大 $E[G_0] $
-
-   比如DDPG TD3 就是增大 $q(s,\pi(s))$ 
-
-3. 更新价值让价值贴近回报 min(v/q-U)^2
-
-
-
-On-Policy：回合更新，因为取 $U_t = G_t$ (这里是$\hat R_t$) 所以需要每个回合结束计算它。
-
-VPG，TRPO，PPO
-
-每执行一步a就要计算这一步的v和logpa
-
-更新也是要在运行过程中更新，每一个epoch更新一次
-
-
-
-Off-Policy：时序差分更新，因为取 $U_t = r+\gamma v'(或者q')$ ，这种就可以单步更新或者抽取批次无顺序更新。
-
-DDPG，TD3，SAC
-
-先执行好多次，最后收集到所有数据再去计算
-
-
+策略梯度类： OpenAI
 
 | 算法                                      | on/off policy | continous/discrete action |
 | ----------------------------------------- | ------------- | ------------------------- |
@@ -168,6 +36,38 @@ DDPG，TD3，SAC
 | <font color='red'>td3(确定性动作)</font>  | off           | con                       |
 | sac                                       | off           | con                       |
 | sac_discrete                              | off           | discrete                  |
+
+
+
+值算法类：DeepMind
+
+| 算法        | on/off policy | continous/discrete action |
+| ----------- | ------------- | ------------------------- |
+| Q_learning  | on            | discrete                  |
+| **DQN**     | off           | discrete                  |
+| **DQN2015** | off           | discrete                  |
+| **DDQN**    | off           | discrete                  |
+| DuelingDDQN | off           | discrete                  |
+
+标黑色的三种算法在dqn文件夹里面集成
+
+
+
+进阶：分层强化学习HRL
+
+| 算法          | on/off policy | continous/discrete action |
+| ------------- | ------------- | ------------------------- |
+| Option_critic | off           | both                      |
+| HDQN          | off           | discrete                  |
+| ...待更新     |               |                           |
+
+
+
+进阶：目标强化学习算法
+
+| 算法     | on/off policy | continous/discrete action |
+| -------- | ------------- | ------------------------- |
+| HER_DDPG | off           | con                       |
 
 
 
@@ -188,73 +88,17 @@ Spinning Up 项目的算法都按照固定的模板来实现。每个算法由�
 
 
 
-# On-Policy 回合更新(必须一个回合更新一次)
+# 三、代码注解
 
-一个epoch收集完数据，就必须要更新。
+## 3.1 策略梯度类
 
-然后下一个epoch用更新完的收集数据，再去更新。
+### On-Policy 回合更新(必须一个回合更新一次)
 
-循环，也是就是说**收集数据和更新网络必须在同一个epoch中进行！**
+#### VPG
 
-主循环的特点，两层循环
+![image-20220309081653401](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220309081653401.png)
 
-```python
-for epoch in range(epochs):
-    for t in range(steps_per_epoch):
-        ...
-    update()
-    	get epoch data
-```
-
-并且update**价值（v或者q）**的时候，采用的是实实在在的 $G_t$ 和价值函数的MSE差异，即 $U = G_t$
-
-![image-20220315131956703](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315131956703.png)
-
-**为什么这三个算法原生支持离散动作空间？但是SAC不支持？**
-
-因为critic是状态价值函数 $v(s)$ 的形式，无论动作区间如何，s的维度是不会变的！
-
-而SAC的critic是动作价值函数 $q(s,a)$ 的形式，连续的动作区间a的dim就是 a_dim。
-
-但是离散的动作 a的形状本身是1， 但是a的可选择数是n。**所以s和a无法concat**！这就无法使用动作价值来评判！
-
-所以SAC不原生支持离散动作空间
-
-
-
-第一个算法
-
-## VPG
-
-[标准版的策略梯度算法(Vanilla Policy Gradient) - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/106006748)
-
-其中有优势函数估计GAE-Lambda算法如下：其实就是时序差分算法的目标函数减价值函数
-$$
-\hat A_t = \sum_{l=0}^{\infty}(\gamma\lambda)^l\delta_{t+l}^V
-$$
-举个例子，假如我们的 $\delta $ 向量如下：
-$$
-[
- \delta_0^V,\\
-  \delta_1^V,\\
-   \delta_2^V
-]
-$$
-那我们估计出来的优势如下：
-$$
-[\hat A_0 = \delta_0^V + (\gamma\lambda)\delta_1^V +  (\gamma\lambda)^2\delta_2^V,\\
-\hat A_1 =  \delta_1^V +  (\gamma\lambda)\delta_2^V,\\
-\hat A_2  = \delta_2^V]
-$$
-这个式子是这样推出来的。
-
-<img src="https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220304152627112.png" alt="image-20220304152627112" style="zoom:80%;" />
-
-
-
-![image-20220309081653401](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309081653401.png)
-
-![image-20220304152547764](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220304152547764.png)
+![image-20220304152547764](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220304152547764.png)
 
 ```python
 # 设置计算VPG的 policy loss
@@ -313,49 +157,29 @@ spinup的一些小工具 utils可以用一用，但是也可以不用，用tenso
 
 离散表现：
 
-![image-20220317110808939](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317110808939.png)
+![image-20220317110808939](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317110808939.png)
 
 
 
-![image-20220308204142465](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220308204142465.png)
+![image-20220308204142465](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220308204142465.png)
 
-![image-20220307150643026](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220307150643026.png)
-
-
-
-## TRPO 和 NPG
-
-这份TRPO的代码中也有NPG的更新模式，这两种都是共轭梯度的强化学习算法。
-
-是在自然梯度算法 NPG 基础上改进得来的。
-
-目标函数是
-
-$E[G_0] \sim L(\theta) = L(\theta_k) + L(\theta,\theta_k)$
-
-$L(\theta_k) $ 是已知常数，需要优化后面那一项就行了。
-$$
-max_\theta L(\theta,\theta_k)
-$$
-
-
-![image-20220309081220365](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309081220365.png)
+![image-20220307150643026](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220307150643026.png)
 
 
 
-但是这个函数实际程序不好操作，所以做了改进
+#### TRPO 和 NPG
 
-![image-20220309081253501](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309081253501.png)
+![image-20220309081253501](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220309081253501.png)
 
 有别人写的代码，但是只能用于连续动作区间，理论上是可以用到离散动作空间的
 
 用到了最优化课程里面的共轭梯度算法啊。
 
-![image-20220307151512525](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220307151512525.png)
+![image-20220307151512525](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220307151512525.png)
 
 
 
-![image-20220307151354942](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220307151354942.png)
+![image-20220307151354942](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220307151354942.png)
 
 [Conjugate gradient method - Wikipedia](https://en.wikipedia.org/wiki/Conjugate_gradient_method)
 
@@ -470,13 +294,13 @@ $$
 
 离散表现
 
-![image-20220317111947366](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317111947366.png)
+![image-20220317111947366](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317111947366.png)
 
 连续表现
 
-![image-20220314160630386](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220314160630386.png)
+![image-20220314160630386](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220314160630386.png)
 
-![image-20220314160613015](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220314160613015.png)
+![image-20220314160613015](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220314160613015.png)
 
 
 
@@ -492,25 +316,25 @@ NPG只不过是update和trpo不同，只用了一次直线搜索，其他都一�
 
 
 
-## PPO
+#### PPO
 
-![image-20220309081745829](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309081745829.png)
+![image-20220309081745829](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220309081745829.png)
 
-![image-20220309081843053](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309081843053.png)
+![image-20220309081843053](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220309081843053.png)
 
 虽然算法中出现了 $\theta_k, \theta_{k+1}$ 但是，更新参数的时候是靠loss的纯梯度自动更新，所以只需要1个policy就行，不需要再搞一个旧的policy。旧的量就用buffer中存储的就可以了。因为buffer中存储的是上一个epoch的策略产生的值，这一个epoch的策略已经是更新过的策略了。
 
-![image-20220308192451763](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220308192451763.png)
+![image-20220308192451763](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220308192451763.png)
 
 
 
 离散表现
 
-![image-20220317112232111](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317112232111.png)
+![image-20220317112232111](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317112232111.png)
 
-![image-20220309082203491](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309082203491.png)
+![image-20220309082203491](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220309082203491.png)
 
-<img src="https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220308204313906.png" alt="image-20220308204313906" style="zoom:67%;" />
+<img src="D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220308204313906.png" alt="image-20220308204313906" style="zoom:67%;" />
 
 ```python
 # 设置计算VPG的 policy loss
@@ -576,7 +400,7 @@ NPG只不过是update和trpo不同，只用了一次直线搜索，其他都一�
 
 
 
-## 总结 `self.ac.step(obs)`和`self.ac.pi.forward(obs, act)`
+#### 总结 `self.ac.step(obs)`和`self.ac.pi.forward(obs, act)`
 
 两个标志性的函数
 
@@ -632,7 +456,7 @@ def forward(self, obs, act=None):
 
 
 
-# Off-Policy 时序差分更新(可以单步也可以回合更新)
+### Off-Policy 时序差分更新(可以单步也可以回合更新)
 
 先收集数据，如果env终止了，再重启继续收集。
 
@@ -649,9 +473,9 @@ for t in range(total_steps):
 
 并且在update更新**价值（v或者q）**的时候，用到的是时序差分，无论是q还是v，都是使用的$y$ 和q或者v的MSE，即 $U = y = r+\gamma v(或者q)$
 
-![image-20220315132112938](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315132112938.png)
+![image-20220315132112938](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315132112938.png)
 
-![image-20220315132124571](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315132124571.png)
+![image-20220315132124571](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315132124571.png)
 
 写程序的时候一定要注意，是梯度上升还是下降！
 
@@ -659,21 +483,11 @@ for t in range(total_steps):
 
 如果是梯度上升，那么loss是取负
 
-## DDPG
+#### DDPG
 
-确定性动作方法(同策时)
+![image-20220309090240190](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220309090240190.png)
 
-$a = \pi(s;\theta)$ 
-$$
-\grad[E_\pi(G_0)] = E[\sum_{t=0} ^{\infty}\gamma ^t\grad Q(s,\pi(s;\theta))]
-$$
-优化Q网络
-
-估计回报 $U = r+\gamma Q$
-
-![image-20220309090240190](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220309090240190.png)
-
-![image-20220311185006713](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220311185006713.png)
+![image-20220311185006713](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220311185006713.png)
 
 ```python
 def compute_loss_q(self, data):
@@ -734,19 +548,19 @@ def compute_loss_q(self, data):
                 p_targ.data.add_((1 - self.delay_up) * p.data)
 ```
 
-![image-20220317130210676](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317130210676.png)
+![image-20220317130210676](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317130210676.png)
 
-![image-20220314203828354](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220314203828354.png)
+![image-20220314203828354](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220314203828354.png)
 
 
 
-## TD3
+#### TD3
 
 两个ac，一个ac3个网络，pi+q1+q2
 
-![image-20220314191013293](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220314191013293.png)
+![image-20220314191013293](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220314191013293.png)
 
-![image-20220317105608586](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317105608586.png)
+![image-20220317105608586](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317105608586.png)
 
 更新步骤和ddpg一样，只不过计算损失不一样了，并且ac多了个q2网络
 
@@ -834,11 +648,11 @@ def compute_loss_q(self, data):
                     p_targ.data.add_((1 - self.delay_up) * p.data)
 ```
 
-![image-20220317125534090](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317125534090.png)
+![image-20220317125534090](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317125534090.png)
 
-![image-20220314203857340](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220314203857340.png)
+![image-20220314203857340](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220314203857340.png)
 
-## SAC (2018) 不带温度参数
+#### SAC (2018) 不带温度参数
 
 原文2018SAC，是由一个策略，2个v，2个q组成的
 
@@ -860,29 +674,29 @@ SAC的两个特点：
 
    这一步变化，导致了下面的式子
 
-   ![image-20220316092824604](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316092824604.png)
+   ![image-20220316092824604](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316092824604.png)
 
 2. 同样是使用高斯分布，但是SAC用神经网络输出的是**两组数** $\mu,\sigma$，他把这两个都作为了网络的输出。而PPO，TRPO，VPG这几种也使用分布的算法，只是用神经网络输出 $\mu$，而把方差作为一个单独的变量进行优化。（**为什么在SAC中使用单独方差会失灵？因为使用了重参数化，重参数化时需要用到网络输出的方差进行重参数化，如果把方差作为单独变量，会导致重参数化之后的动作与之前的网络梯度中断！**）
 
 3. 使用了**重参数化技巧**，因为优化的时候需要求一个 Q网络对于动作的一阶导数再求对$\theta$ 的二阶导数，所以动作需要**进行重参数化手段才能有二阶梯度**，否则只用平时的采样会没有梯度！
 
-   ![image-20220316095250413](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316095250413.png)
+   ![image-20220316095250413](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316095250413.png)
 
-![image-20220316094411131](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316094411131.png)
+![image-20220316094411131](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316094411131.png)
 
-![image-20220315084924720](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315084924720.png)
+![image-20220315084924720](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315084924720.png)
 
-![image-20220315132757757](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315132757757.png)
+![image-20220315132757757](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315132757757.png)
 
-![image-20220315132815216](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315132815216.png)
+![image-20220315132815216](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315132815216.png)
 
 更新策略
 
-![image-20220315143025988](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315143025988.png)
+![image-20220315143025988](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315143025988.png)
 
-![image-20220315143037726](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315143037726.png)
+![image-20220315143037726](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315143037726.png)
 
-![image-20220317091226705](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317091226705.png)
+![image-20220317091226705](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317091226705.png)
 
 通过伪代码，我们可以看到，
 
@@ -898,7 +712,7 @@ $$
 
 也就是说，现在的actor的主要功能`forward`仅需要和之前的 `ac.step` 这个函数一样，**仅需要自己产生动作然后求概率，不需要接收外部的动作求概率**！
 
-`forward(s)` 函数需要既支持批量传入，也需要支持单个传入，驱动环境运行！求动作必须要带梯度！因为![image-20220315170614775](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315170614775.png)函数需要从分布里面采集动作，需要梯度！
+`forward(s)` 函数需要既支持批量传入，也需要支持单个传入，驱动环境运行！求动作必须要带梯度！因为![image-20220315170614775](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315170614775.png)函数需要从分布里面采集动作，需要梯度！
 
 **SAC的forward包含了之前`ac.step`函数的功能，并且不需要传入其他动作求概率，所以SAC程序里面没有`ac.step`函数了**
 
@@ -910,11 +724,11 @@ Normal分布的sample和rsample的区别，**rsample是带梯度的sample，全�
 
 重参数化的公式是：
 
-![image-20220316092554240](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316092554240.png)
+![image-20220316092554240](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316092554240.png)
 
 但是pytorch的dist自带的`dist.rsample()`函数的公式是
 
-![image-20220316101420106](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316101420106.png)
+![image-20220316101420106](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316101420106.png)
 
 **我们需要在pytorch的rsample之后，手动加一个tanh！**这样才能真正达到重参数化！
 
@@ -924,15 +738,15 @@ Normal分布的sample和rsample的区别，**rsample是带梯度的sample，全�
 
 
 
-$u$=![image-20220316092554240](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316092554240.png)
+$u$=![image-20220316092554240](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316092554240.png)
 
 我们想要求原来没有变形的 $a$ 的 $log\pi(a|s)$ 就需要用下面的式子来计算！ 
 
-![image-20220316092824604](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316092824604.png)
+![image-20220316092824604](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316092824604.png)
 
-![image-20220317083709866](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317083709866.png)
+![image-20220317083709866](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317083709866.png)
 
-![image-20220315164145655](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315164145655.png)
+![image-20220315164145655](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315164145655.png)
 
 ```python
 	def compute_loss_q(self, data):
@@ -1013,19 +827,15 @@ $u$=![image-20220316092554240](https://github.com/PeiZhangNEU/spinup_complete/bl
 
 
 
-![image-20220317125702016](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317125702016.png)
+![image-20220317125702016](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317125702016.png)
 
-![image-20220315191441506](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220315191441506.png)
-
-
+![image-20220315191441506](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220315191441506.png)
 
 
 
-明天可以参考着改一下，这样就全了，我的库！
 
 
-
-## SAC_Discrete (2019) 带温度参数
+#### SAC_Discrete (2019) 带温度参数
 
 SAC_Discrete 是在 SAC2019的基础上进行改造的，具体参考
 
@@ -1035,7 +845,7 @@ SAC2019 和 2018 最大的区别就是，多了一个 自动优化的熵参数 $
 
 也就是引入了一个温度参数的代价函数去优化 $\alpha$ ，其它的优化函数和之前一致。
 
-![image-20220316115657877](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220316115657877.png)
+![image-20220316115657877](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220316115657877.png)
 
 
 
@@ -1226,39 +1036,483 @@ class MLPQFunction(nn.Module):
 
 
 
-![image-20220317125820023](https://github.com/PeiZhangNEU/spinup_complete/blob/master/complete_spinup_assets/image-20220317125820023.png)
+![image-20220317125820023](D:\科研日志\2022-3-4-进行spinup项目.assets\image-20220317125820023.png)
 
 
 
 
 
+## 3.2 分层强化学习
+
+
+
+### 基于Option的分层强化学习
+
+在基于option的分层强化学习中，上层控制器根据上层策略选择options，下层控制器根据所选择的option所对应的策略选择action，从而实现分层。
+
+#### Option-Critic: The Option-Critic Architecture 
+
+[Bacon et al_2016_The Option-Critic Architecture.pdf](E:\zotero_moren\allresearchs\分层强化学习\Bacon et al_2016_The Option-Critic Architecture.pdf) 
+
+[【分层强化学习】The Option-Critic Architecture 阅读笔记 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/430471198)
+
+**Option自己的推导： [option critic.pdf](option critic.pdf)** 
+
+首先是增强状态的定义
+
+$(s,\omega)$，$\omega\in\Omega$
+
+$\omega$ 是一个 option，它是一个三元组 $(I_\omega, \pi_\omega,\beta_\omega)$
+
+强化学习整个网络的结构如下
+
+针对 lunarLander 任务，**动作维度为4**，**状态维度为 8**, **optin_num 为 2**，即$\omega=0\ or\ 1$
+
+公共部分 features            把 observation 转换为features
+
+$Q_{\Omega}$：Q_layer                    给出两个option对应的状态价值，**类比 V(s)!**
+
+$\beta_{\Omega}$：termination_layer   给出两个option终止的概率
+
+$\pi_\omega$：option_layer   内策略，两个option对应两个策略
+
+option: 就是$\omega$ 就是 0 或者 1，因为option_num 是2
+
+```
+opt_cri_arch(
+  (feature): Sequential(
+    (0): Linear(in_features=8, out_features=128, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ReLU()
+  )
+  (q_value_layer): Linear(in_features=128, out_features=2, bias=True)
+  (termination_layer): Linear(in_features=128, out_features=2, bias=True)
+  (option_layer): ModuleList(
+    (0): Linear(in_features=128, out_features=4, bias=True)
+    (1): Linear(in_features=128, out_features=4, bias=True)
+  )
+)
+```
+
+
+
+#### env.unwrapped
+
+小知识！
+
+[gym中env的unwrapped_星之所望的博客-CSDN博客](https://blog.csdn.net/weixin_42769131/article/details/114550177)
+
+![image-20220510153810092](D:\科研日志\2022-5-12-zpinup库.assets\image-20220510153810092.png)
+
+对于不会返回done的程序，不要使用unwrapped！
+
+比如 pendulum，就不能用 unwrapped， 因为本身done就一直等于 False！ 如果再不加次数限制，会死循环！
+
+
+
+改出来了一份连续动作空间的 option-critic! 更新的batchsize 不要太大！ 64就行， 小批次下降会带来更好的效果! 
+
+一份pendulum好用的超参数
+
+```python
+ test = option_critic(
+        env=env,
+        episode=250,
+        exploration=2000,
+        update_freq=4,
+        freeze_interval=200,
+        batch_size=64,
+        capacity=100000,
+        learning_rate=3e-4,
+        option_num=4,
+        gamma=0.99,
+        termination_reg=0.01,
+        epsilon_init=1.,
+        decay=10000,
+        epsilon_min=0.01,
+        entropy_weight=1e-2,
+        conv=False,
+        cuda=cuda,
+        render=True,
+        save_path='./model/pendulum.pkl'
+    )
+    test.run()
+```
+
+
+
+### 基于Goal的分层强化学习
+
+在基于goal的分层强化学习中，上层控制器在一个较长的时间跨度上根据上层策略选择一个goal，而下层控制器则在一个较短的时间跨度上根据所选择的goal以及下层策略选择action，目标是实现goal。因此，一个十分关键的问题是——**如何定义goal**？在上一节所介绍的UVFA与HER算法中，目标空间即为状态空间，目标就是达到某一特定的状态。实际上对于目标，不同的论文有不同的定义方法，因此在介绍每篇论文时，我将首先明确论文中goal的具体含义，然后再简单介绍论文工作。
+
+
+
+#### H-DQN
+
+[【分层强化学习】H-DQN：Hierarchical Deep Reinforcement Learning: Integrating Temporal Abstraction阅读笔记 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/430886508)
 
 
 
 
 
+## 3.3 DQN族
+
+zpinup中
+
+DQN2013， DQN2015 以及 DDQN 都放在了dqn代码里， 因为他们的core都一样，包括网络的结构和get_action的方法都一样。
+
+DuelingDDQN 单独存放了
+
+
+
+和AC不同的是，**Q算法选择动作和计算价值都是通过Q价值网络的，根据值来选择动作，贪婪策略**
+
+注意下，离散动作空间对应的 动作价值网络 $Q(s,a)$ 的输入不是s和a的cat然后输出1个价值，而是输入s，**计算 Q(s),  输出a个价值**！
+
+但是对于状态价值  $V(s)$ , 无论是离散还是连续动作空间， 网络都是输入s，输出维度1的价值，和动作无关！
+
+![image-20220513100028019](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513100028019.png)
+
+
+
+### Q-Learning
+
+原本来说，只能处理
+
+**observation是离散的**
+
+**action也是离散的环境**
+
+如果类似 lunarlander 等 obs是连续的box，而action 是离散的discrete n的环境，需要先把obs空间离散化！
+
+具体我代码写的有。
+
+![image-20220513085743355](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513085743355.png)
+
+### DQN
+
+#### 2013初版：只有1个Q网络
+
+**Q 网络 ，就是动作价值函数， Q算法选择动作和计算价值都是通过Q价值网络的，根据值来选择动作，贪婪策略**
+
+if random > epsilon:
+
+​	a = argmax(Q(s))
+
+else:
+
+​	a = randm
+
+ [Mnih et al_Playing Atari with Deep Reinforcement Learning.pdf](E:\zotero_moren\allresearchs\强化学习基础论文\Mnih et al_Playing Atari with Deep Reinforcement Learning.pdf) 
+
+![image-20220513090431227](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513090431227.png)
+
+```python
+def compute_loss(self, data):
+        '''
+        计算q网络的loss
+        '''
+        o, a, r, o2, d = data['obs'], data['act'], data['rew'], data['obs2'], data['done']
+        with torch.no_grad():
+            temp_q = self.policy.pi(o2).max(1)[0] 
+            Q_targets = r + (1-d) * (self.gamma * temp_q)   # [batch_size, ]
+            Q_targets = Q_targets.unsqueeze(1)              # [batch_size, 1]
+        Q_expected_ = self.policy.pi(o)
+        Q_expected = Q_expected_.gather(1, a.long())        # [batch_size, 1], a的形状必须是[batch_size, 1]
+
+        loss = F.mse_loss(Q_expected, Q_targets)
+        return loss
+```
 
 
 
 
 
+#### 2015改进版： 2个Q网络，目标网络缓慢更新
+
+ [Mnih et al_2015_Human-level control through deep reinforcement learning.pdf](E:\zotero_moren\allresearchs\强化学习基础论文\Mnih et al_2015_Human-level control through deep reinforcement learning.pdf) 
+
+![image-20220513090529018](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513090529018.png)
+
+```python
+def compute_loss(self, data):
+        '''
+        计算q网络的loss
+        '''
+        o, a, r, o2, d = data['obs'], data['act'], data['rew'], data['obs2'], data['done']
+        with torch.no_grad():
+            temp_q = self.tar_policy.pi(o2).max(1)[0]       #  只是在这里把计算 temp q 的部分换成了目标网络！
+            Q_targets = r + (1-d) * (self.gamma * temp_q)   # [batch_size, ]
+            Q_targets = Q_targets.unsqueeze(1)              # [batch_size, 1]
+        Q_expected_ = self.policy.pi(o)
+        Q_expected = Q_expected_.gather(1, a.long())        # [batch_size, 1], a的形状必须是[batch_size, 1]
+
+        loss = F.mse_loss(Q_expected, Q_targets)
+        return loss
+```
+
+
+
+### DDQN(double DQN)
+
+把**2015 DQN** 的y换成下式。就这个y变了，其他都不变。
+
+ [van Hasselt et al_Deep Reinforcement Learning with Double Q-learning.pdf](E:\zotero_moren\allresearchs\强化学习基础论文\van Hasselt et al_Deep Reinforcement Learning with Double Q-learning.pdf) 
+
+![image-20220513090546292](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513090546292.png)
+
+仔细对比一下，发现主要是里面这部分不一样了！本来是求整体max，DDQN是把最大值a直接计算出来放进去。
+
+![image-20220513090747127](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513090747127.png)
+
+![image-20220513090658374](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513090658374.png)
+
+
+
+```python
+def compute_loss(self, data):
+        '''
+        计算q网络的loss
+        '''
+        o, a, r, o2, d = data['obs'], data['act'], data['rew'], data['obs2'], data['done']
+        with torch.no_grad():
+
+            #  和 dqn 2015不同的就是和这里，计算temp_q 不一样！
+            max_action_indexes = self.policy.pi(o2).argmax(1)     # [batch_size, ]， 求q表里面最大值对应的动作
+            max_action_indexes = max_action_indexes.unsqueeze(1)  # [batch_size, 1]
+            temp_q = self.tar_policy.pi(o2).gather(1, max_action_indexes)  # [batch_size, 1]
+                                            # gather 里面后面的索引必须也是和tensor形状的维度一致的tensor  [batch_size, 1]
+            temp_q = temp_q.squeeze()       # 变成 [bathc_size, ] 因为下面要计算乘积
+
+            Q_targets = r + (1-d) * (self.gamma * temp_q)   # [batch_size, ]
+            Q_targets = Q_targets.unsqueeze(1)              # [batch_size, 1]
+        Q_expected_ = self.policy.pi(o)
+        Q_expected = Q_expected_.gather(1, a.long())        # [batch_size, 1], a的形状必须是[batch_size, 1]
+
+        loss = F.mse_loss(Q_expected, Q_targets)
+        return loss
+```
+
+
+
+### DuelingDDQN
+
+论文直接在 **DDQN 基础**上进行的改进
+
+ [Wang et al_2016_Dueling Network Architectures for Deep Reinforcement Learning.pdf](E:\zotero_moren\allresearchs\强化学习基础论文\Wang et al_2016_Dueling Network Architectures for Deep Reinforcement Learning.pdf) 
+
+[Torch | Dueling Deep Q-Networks](http://torch.ch/blog/2016/04/30/dueling_dqn.html)
+
+torch建议的改进！
+
+![image-20220513103303405](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513103303405.png)
+
+![image-20220513104653165](D:\科研日志\2022-5-12-zpinup库.assets\image-20220513104653165.png)
+
+
+
+实际代码怎么写？
+
+可以输入s ，网络的输出维度为 a_dim+1 , 最后一个神经元输出的是 $v(s)$ ，而前面的a_dim个代表 $Q(s)[a]$ 
+
+进行输出动作时，把网络的输出的 Advantage单独提取出来，进行argmax即可。
+
+```python
+def step(self, obs):
+    '''
+    只接受1个obs，用于驱动环境运行
+    贪婪策略
+    在训练时，动作用这个产生, 这个过程本身就是贪婪策略了，在train的时候直接用即可
+    '''
+    if np.random.uniform() >= self.epsilon:
+        with torch.no_grad():
+            logits = self.pi(obs).cpu().numpy()
+            logits = logits.squeeze()             # 为什么要squeeze 因为 atari的时候 logtis形状是 [1, act_dim+1] 前面多了个1
+            # logits 输出的维度本来是 act_dim + 1 选择动作的时候根据前act_dim的 A(s)[a]选
+            logits_action = logits[:-1]
+            a = np.argmax(logits_action)
+    else:
+        a = np.random.randint(0, self.act_dim)
+```
+
+计算损失的函数如下：
+
+```python
+def calculate_duelling_q_values(self, duelling_network_output):
+        """
+        在计算loss的时候使用的内函数
+        利用dueling net的结构，计算出来 A 和 V
+        然后估计 Q 按照论文中的估计公式来估计
+        """
+        # 把 V(s) 拆出来
+        state_value = duelling_network_output[:, -1]          # [batch_size, ]
+        # 把 A(s)[a=.] 拆出来
+        advantage_value = duelling_network_output[:, :-1]   # [batch_size, act_dim]
+        # 计算mean A
+        avg_advantage = torch.mean(advantage_value, dim=1)    # [batch_size, ]
+
+        # 计算 估计的Q
+        q_values = state_value.unsqueeze(1) + (advantage_value - avg_advantage.unsqueeze(1))  # [batch_size, act_dim]
+        return q_values
+
+    def compute_loss(self, data):
+        '''
+        计算q网络的loss
+        '''
+        o, a, r, o2, d = data['obs'], data['act'], data['rew'], data['obs2'], data['done']
+        with torch.no_grad():
+
+            #  和 ddqn 不同的就是和这里，计算temp_q 不一样！
+            # 求最大动作索引的时候是按照 A(s)[a]求的，所以要把网络的act_dim+1 的输出保留前几维度
+            max_action_indexes = self.policy.pi(o2)[:, :-1].argmax(1)    # [batch_size, ]， 求q表里面最大值对应的动作
+
+            max_action_indexes = max_action_indexes.unsqueeze(1)     # [batch_size, 1]
+                # 计算 temp q 需要多一步骤
+            dueling_tar_net_outputs = self.tar_policy.pi(o2)         # [batchsize, act_dim+1]
+            dueling_tar_q = self.calculate_duelling_q_values(dueling_tar_net_outputs)  # [batch_size, act_dim]  取代了之前ddqn的self.tar_policy.pi(o2)
+
+            temp_q = dueling_tar_q.gather(1, max_action_indexes)  # [batch_size, 1]
+                                            # gather 里面后面的索引必须也是和tensor形状的维度一致的tensor  [batch_size, 1]
+            temp_q = temp_q.squeeze()       # 变成 [bathc_size, ] 因为下面要计算乘积
+
+            Q_targets = r + (1-d) * (self.gamma * temp_q)   # [batch_size, ]
+            Q_targets = Q_targets.unsqueeze(1)              # [batch_size, 1]
+        
+        # 和 ddqn 不一样的是，计算 现在的Q 也不一样！
+        dueling_net_outputs = self.policy.pi(o)                                # [batchsize, act_dim+1]
+        Q_expected_ = self.calculate_duelling_q_values(dueling_net_outputs) # [batch_size, act_dim]  取代了之前ddqn的self.policy.pi(o)
+        Q_expected = Q_expected_.gather(1, a.long())                        # [batch_size, 1], a的形状必须是[batch_size, 1]
+
+        loss = F.mse_loss(Q_expected, Q_targets)
+        return loss
+```
 
 
 
 
 
+### Atari 支持
+
+在DQN大类的core函数放入了可以训练Atari的模块：
+
+```python
+def conv_mlp(obs_dim, act_dim):
+    '''
+    对于atari环境，输入是图片的情况来说，需要用到卷积处理图片，方便起见，我这里的网络结构直接制定了
+    obs_dim = [1, 84, 84]
+    '''
+    # 先建立一个卷及模型
+    conv_model = nn.Sequential(
+                nn.Conv2d(obs_dim[0], 32, 8, 4),
+                nn.ReLU(),
+                nn.Conv2d(32, 64, 4, 2),
+                nn.ReLU(),
+                nn.Conv2d(64, 64, 3, 1),
+                nn.ReLU()
+            )
+    # 再进行全连接, 全连接之前必须知道卷积的输出拉直之后是什么形状
+    tmp = torch.zeros(1, * obs_dim)
+    feature_size = conv_model(tmp).view(1, -1).size(1)
+
+    # 再建立一个线性模型
+    linear_model = nn.Sequential(
+                nn.Linear(feature_size, 128),
+                nn.ReLU(),
+                nn.Linear(128, 64),
+                nn.ReLU(),
+                nn.Linear(64, act_dim)
+            )
+
+    return conv_model, linear_model
+```
+
+创建 agent.policy.pi的时候
 
 
 
+#### DQN大类： DQN DDQN
+
+根据 conv 标志，确定网络的结构， 以及forward的计算方法
+
+```python
+class Q_net(nn.Module):
+    '''
+    创建actor
+    类里面的方法出现前置下划线是，代表这个函数是该类私有的，只能在内部调用
+    这个类没有 __init__(self, inputs) 所以是不可实例化的类，只是一个用来继承的模板
+    '''
+    def __init__(self, obs_dim, act_dim, hidden_sizes, activation, useconve=False):
+        '''初始一个logits网络，可以直接输出各个动作对应的概率, 默认useconve=False, 这样外部的类就不用加东西了，只有训练atari的时候再加就好了'''
+        super().__init__()
+        self.useconve = useconve
+        if self.useconve:
+            # 如果使用卷及网络，那就用conv层
+            self.conv_net, self.logits_net = conv_mlp(obs_dim, act_dim)
+        else:
+            self.logits_net = mlp([obs_dim[0]] + list(hidden_sizes) + [act_dim], activation) # 把obs_dim[0] 防在这里是最合适的
+    
+    def forward(self, obs):
+        '''
+        这个函数是为了计算目前的logpa，操作的是批量数据，批量数据仅仅在update的时候需要用到！
+        只在upadate这一步计算loss时才需要用到
+        带梯度
+        产生给定状态的分布dist
+        计算分布下，给定动作对应的log p(a)
+        actor里面forward一般是只接收批量的数据，每一步的计算用上面的函数
+        '''
+        if self.useconve:
+            conv_feature = self.conv_net(obs).view(obs.size(0), -1)   # [N, conv_features num]
+            logits = self.logits_net(conv_feature)
+        else:
+            logits = self.logits_net(obs)
+        return logits
+```
 
 
 
+#### DuelingDDQN
 
+它的Q net 的输出维度是 act_dim +1 和上面有所不同
 
+```python
+# Actor的基础类以及离散Actor和连续Actor类。
+class Q_net(nn.Module):
+    '''
+    创建actor
+    类里面的方法出现前置下划线是，代表这个函数是该类私有的，只能在内部调用
+    这个类没有 __init__(self, inputs) 所以是不可实例化的类，只是一个用来继承的模板
+    '''
+    def __init__(self, obs_dim, act_dim, hidden_sizes, activation, useconve=False):
+        '''初始一个logits网络，可以直接输出各个动作对应的概率'''
+        super().__init__()
 
+        #  输出变成 Advantage  和  Value， Advantage的维度是act_dim, V(s) 是1
+        #  A(s,a)类似 Q(s,a) 在离散动作空间中， 这种动作价值直接输出 a 维度。
+        self.useconve = useconve
+        if self.useconve:
+            # 如果使用卷及网络，那就用conv层
+            self.conv_net, self.logits_net = conv_mlp(obs_dim, act_dim + 1)
+        else:
+            self.logits_net = mlp([obs_dim[0]] + list(hidden_sizes) + [act_dim + 1], activation)   # 把obs_dim[0] 防在这里是最合适的
+    
+    def forward(self, obs):
+        '''
+        这个函数是为了计算目前的logpa，操作的是批量数据，批量数据仅仅在update的时候需要用到！
+        只在upadate这一步计算loss时才需要用到
+        带梯度
+        产生给定状态的分布dist
+        计算分布下，给定动作对应的log p(a)
+        actor里面forward一般是只接收批量的数据，每一步的计算用上面的函数
+        '''
+        if self.useconve:
+            conv_feature = self.conv_net(obs).view(obs.size(0), -1)   # [N, conv_features num]
+            logits = self.logits_net(conv_feature)
+        else:
+            logits = self.logits_net(obs)
+        return logits
+```
 
+## 3.4  her算法
 
-
-
-上述的算法包，可以用到服务器上，只需要把参考的位置改一下就行了！
-
+适用于dict形式的gym环境。

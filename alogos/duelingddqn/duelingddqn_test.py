@@ -45,4 +45,4 @@ def test(path, env_name, render=True, num_episodes=2000, max_ep_len=1000):
 
 
 if __name__ == '__main__':
-    test('data/duelingddqn_lunar/dqn_28_policy.pt','LunarLander-v2')
+    test('data/duelingddqn_lunar/dqn_19_policy.pt','LunarLander-v2')

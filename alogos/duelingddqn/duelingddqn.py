@@ -4,7 +4,7 @@ import torch
 from torch.optim import Adam
 import gym
 import time
-import alogos.dqn.core as core
+import alogos.duelingddqn.core as core
 import torch.nn.functional as F
 
 def Merge(dict1, dict2): 
@@ -73,7 +73,7 @@ class dqn:
 
 
 
-        # 建立Q_net
+        # 建立Q_net  Q——net的输出是 act_dim + 1 最后一维是代表v(S), 前面的代表 A(s)[a]
         self.policy = policy(self.env.observation_space, self.env.action_space, epsilon=epsilon, **ac_kwargs).to(self.device)
         self.pi_optimizer = Adam(self.policy.pi.parameters(), lr=pi_lr)
 
@@ -94,6 +94,24 @@ class dqn:
         # 创建记录数据的字典
         self.information = {}
 
+
+    def calculate_duelling_q_values(self, duelling_network_output):
+        """
+        在计算loss的时候使用的内函数
+        利用dueling net的结构，计算出来 A 和 V
+        然后估计 Q 按照论文中的估计公式来估计
+        """
+        # 把 V(s) 拆出来
+        state_value = duelling_network_output[:, -1]          # [batch_size, ]
+        # 把 A(s)[a=.] 拆出来
+        advantage_value = duelling_network_output[:, :-1]   # [batch_size, act_dim]
+        # 计算mean A
+        avg_advantage = torch.mean(advantage_value, dim=1)    # [batch_size, ]
+
+        # 计算 估计的Q
+        q_values = state_value.unsqueeze(1) + (advantage_value - avg_advantage.unsqueeze(1))  # [batch_size, act_dim]
+        return q_values
+
     def compute_loss(self, data):
         '''
         计算q网络的loss
@@ -101,17 +119,26 @@ class dqn:
         o, a, r, o2, d = data['obs'], data['act'], data['rew'], data['obs2'], data['done']
         with torch.no_grad():
 
-            #  和 dqn 2015不同的就是和这里，计算temp_q 不一样！
-            max_action_indexes = self.policy.pi(o2).argmax(1)     # [batch_size, ]， 求q表里面最大值对应的动作
-            max_action_indexes = max_action_indexes.unsqueeze(1)  # [batch_size, 1]
-            temp_q = self.tar_policy.pi(o2).gather(1, max_action_indexes)  # [batch_size, 1]
+            #  和 ddqn 不同的就是和这里，计算temp_q 不一样！
+            # 求最大动作索引的时候是按照 A(s)[a]求的，所以要把网络的act_dim+1 的输出保留前几维度
+            max_action_indexes = self.policy.pi(o2)[:, :-1].argmax(1)    # [batch_size, ]， 求q表里面最大值对应的动作
+
+            max_action_indexes = max_action_indexes.unsqueeze(1)     # [batch_size, 1]
+                # 计算 temp q 需要多一步骤
+            dueling_tar_net_outputs = self.tar_policy.pi(o2)         # [batchsize, act_dim+1]
+            dueling_tar_q = self.calculate_duelling_q_values(dueling_tar_net_outputs)  # [batch_size, act_dim]  取代了之前ddqn的self.tar_policy.pi(o2)
+
+            temp_q = dueling_tar_q.gather(1, max_action_indexes)  # [batch_size, 1]
                                             # gather 里面后面的索引必须也是和tensor形状的维度一致的tensor  [batch_size, 1]
             temp_q = temp_q.squeeze()       # 变成 [bathc_size, ] 因为下面要计算乘积
 
             Q_targets = r + (1-d) * (self.gamma * temp_q)   # [batch_size, ]
             Q_targets = Q_targets.unsqueeze(1)              # [batch_size, 1]
-        Q_expected_ = self.policy.pi(o)
-        Q_expected = Q_expected_.gather(1, a.long())        # [batch_size, 1], a的形状必须是[batch_size, 1]
+        
+        # 和 ddqn 不一样的是，计算 现在的Q 也不一样！
+        dueling_net_outputs = self.policy.pi(o)                                # [batchsize, act_dim+1]
+        Q_expected_ = self.calculate_duelling_q_values(dueling_net_outputs) # [batch_size, act_dim]  取代了之前ddqn的self.policy.pi(o)
+        Q_expected = Q_expected_.gather(1, a.long())                        # [batch_size, 1], a的形状必须是[batch_size, 1]
 
         loss = F.mse_loss(Q_expected, Q_targets)
         return loss
@@ -130,7 +157,7 @@ class dqn:
         # 记录
         self.information['LossPi'] = loss_pi.item()
 
-        # 目标网络软更新！
+        # 最后， 更新target的两个网络参数，软更新 用了自乘操作，节省内存
         with torch.no_grad():
             for p, p_targ in zip(self.policy.parameters(), self.tar_policy.parameters()):
                 p_targ.data.mul_(self.delay_up)

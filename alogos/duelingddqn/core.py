@@ -56,9 +56,7 @@ def conv_mlp(obs_dim, act_dim):
     linear_model = nn.Sequential(
                 nn.Linear(feature_size, 128),
                 nn.ReLU(),
-                nn.Linear(128, 64),
-                nn.ReLU(),
-                nn.Linear(64, act_dim)
+                nn.Linear(128, act_dim)
             )
 
     return conv_model, linear_model

@@ -166,9 +166,7 @@ Spinning Up 项目的算法都按照固定的模板来实现。每个算法由�
 
 
 
-VPG抄完了，发现训练效果还行，但是不是很好，可以直接用pytorch训练，在DRL环境，可根据自己的意图对代码进行重构。
 
-spinup的一些小工具 utils可以用一用，但是也可以不用，用tensorboard绘图也挺好的。
 
 离散表现：
 
@@ -186,7 +184,6 @@ spinup的一些小工具 utils可以用一用，但是也可以不用，用tenso
 
 ![image-20220309081253501](https://github.com/PeiZhangNEU/zpinup/blob/master/zpinupgit_assets/image-20220309081253501.png)
 
-有别人写的代码，但是只能用于连续动作区间，理论上是可以用到离散动作空间的
 
 用到了最优化课程里面的共轭梯度算法啊。
 

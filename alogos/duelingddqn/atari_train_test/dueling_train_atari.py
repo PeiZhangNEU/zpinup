@@ -13,10 +13,10 @@ from alogos.duelingddqn.duelingddqn import *
 from common.wrappers import make_atari, wrap_deepmind, wrap_pytorch
 
 def train(env_fn, policy=core.MLPpolicy, ac_kwargs=dict(), seed=0, 
-          steps_per_epoch=4000, epochs=100, replay_size=int(1e6), gamma=0.99, epsilon=0.5,
-          pi_lr=1e-3,  batch_size=64, delay_up=0.995, useconve=False,
+          steps_per_epoch=4000, epochs=100, replay_size=int(1e6), gamma=0.99, epsilon=1.0,
+          pi_lr=1e-3,  batch_size=128, delay_up=0.995, useconve=False,
           update_after=1000, update_every=50, update_times=50,
-          num_test_episodes=10, max_ep_len=1000, save_freq=1,
+          num_test_episodes=10, max_ep_len=2000, save_freq=1,
           expname='', use_gpu=False):
         '''
         训练函数，传入agent和env进行训练。主循环。
@@ -84,16 +84,19 @@ def train(env_fn, policy=core.MLPpolicy, ac_kwargs=dict(), seed=0,
                 o, ep_ret, ep_len = env.reset(), 0, 0
             
             # 如果达到了更新步数，之后每隔50步就update50次
-            if t >= update_after and t % update_every == 0:
-                for _ in range(update_times):
-                    batch = agent.buffer.sample_batch(batch_size)
-                    agent.update(data=batch)
+            if t >= update_after:
+                
+                batch = agent.buffer.sample_batch(batch_size)
+                agent.update(data=batch)
             
             # 打印以及存储模型，以及测试模型
             if (t+1) % steps_per_epoch == 0:
                 epoch = (t+1) // steps_per_epoch   # 除完向下取整
-                if epoch >= 30:  # 前30个回合自由探索一点？再进行下降？
-                    agent.policy.epsilon = epsilon * (1 / (epoch-30 + 1))   # 每一个epoch， 减小一下epsilon， 这样Epsilon会不会减小的太快了？
+                
+                agent.policy.epsilon = agent.policy.epsilon - agent.policy.epsilon * 0.01   # 每一个epoch， 减小一下epsilon， 这样Epsilon会不会减小的太快了？
+                if agent.policy.epsilon <= 0.02:
+                    gent.policy.epsilon = 0.02
+                
                 agent.information['Epsilon'] = agent.policy.epsilon
 
                 # 存储模型
@@ -133,7 +136,7 @@ if __name__ == '__main__':
     # 设置超参数
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default='Breakout-v0')
+    parser.add_argument('--env', type=str, default='BreakoutNoFrameskip-v4')
     parser.add_argument('--hid', type=int, default=256)
     parser.add_argument('--l', type=int, default=2)
     parser.add_argument('--gamma', type=float, default=0.99)
@@ -143,12 +146,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 执行训练过程
-    # env = gym.make(args.env, render_mode='human')  # atari游戏在这里设置完rendermode之后在下面不需要再 env.render()
-    env = gym.make(args.env)
+    env = gym.make(args.env, render_mode='human')  # atari游戏在这里设置完rendermode之后在下面不需要再 env.render()
+    # env = gym.make(args.env)
     ## atari game env原本的obs形状为不固定的比如 [210, 160, 3] ，但pytorch的图表格式channel在最前 
     ## 所以使用deepmind开放的wrap可以把atari env 解构，然后把 obs 形状转换为一样的形状 [1, 84, 84]， 在对atari环境进行卷及网络的时候一定要首先对环境wrapper
     env = wrap_deepmind(env)
-    env = wrap_pytorch(env)
+    env = wrap_pytorch(env) 
+    obs = env.reset()
+    print(obs.shape)
+    print(env.observation_space.shape)
+
     train(lambda : env, policy=core.MLPpolicy,
         ac_kwargs=dict(hidden_sizes=[args.hid]*args.l), gamma=args.gamma, useconve=True,
         seed=args.seed, epochs=args.epochs, expname=args.exp_name, use_gpu=True)

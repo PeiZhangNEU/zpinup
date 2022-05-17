@@ -1165,6 +1165,11 @@ opt_cri_arch(
 #### H-DQN
 
 [【分层强化学习】H-DQN：Hierarchical Deep Reinforcement Learning: Integrating Temporal Abstraction阅读笔记 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/430886508)
+已经完成，但目前的代码只针对 observation 和 action space 都为 discrete的情况， HDQN相当于两个DQN的串联形式。
+上层DQN输出Goal，Goal和obs相连之后输入下层DQN得到action。
+因为DQN的输出是离散的，所以上层DQN的输出Goal是离散的，而Goal要和obs混合，所以obs也是离散的。
+对于更加高级的原始论文的atari的实现，有待更新。
+具体来说，图片格式的obs，可以输入上层DQN，得到Goal。这个离散的Goal可以经过处理，然后把处理后的Goal和图片obs进行融合再输入下层DQN。处理Goal的过程随意，因为HDQN的两个DQN网络的buffer存取的数据不同，网络也是完全独立的，所以更新过程也是相互独立的，因此把Goal和obs融合这一步可以八仙过海了。
 
 
 

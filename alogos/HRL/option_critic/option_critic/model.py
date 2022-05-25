@@ -127,7 +127,7 @@ class option_critic(object):
                     self.env.render()
 
                 termination, greedy_option = self.net.get_option_termination(self.net.get_state(torch.FloatTensor(np.expand_dims(next_obs, 0))), current_option)
-
+                # print(greedy_option)
                 if len(self.buffer) > self.exploration:
                     loss = 0
                     loss += self.compute_actor_loss(obs, current_option, log_prob, entropy, reward, done, next_obs)

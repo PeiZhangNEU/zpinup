@@ -13,14 +13,14 @@ if __name__ == '__main__':
     os.makedirs('alogos/HRL/option_critic/option_critic/model', exist_ok=True)
     test = option_critic(
         env=env,
-        episode=1500,
+        episode=2000,
         exploration=1000,
         update_freq=4,
         freeze_interval=200,
         batch_size=64,
         capacity=100000,
-        learning_rate=1e-3,
-        option_num=3,
+        learning_rate=3e-4,
+        option_num=2,
         gamma=0.99,
         termination_reg=0.01,
         epsilon_init=1.,
